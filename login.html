@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Đăng nhập - Flora Shop</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+<script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<header class="header"><div class="logo">🌿 Flora Shop</div></header>
+
+<main class="container">
+  <form id="loginForm">
+    <h2>Đăng nhập</h2>
+    <input id="username" placeholder="Tên đăng nhập" required />
+    <input id="password" type="password" placeholder="Mật khẩu" required />
+    <div style="display:flex;gap:8px;">
+      <button class="btn" type="submit">Đăng nhập</button>
+      <a href="register.html" class="btn ghost">Đăng ký</a>
+    </div>
+  </form>
+</main>
+
+<script>
+document.getElementById("loginForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim(); // đúng id input
+    const password = document.getElementById("loginPassword").value.trim();
+
+    const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+    const user = allUsers.find(u => u.email === email);
+
+    if (!user || user.password !== password) return alert("Sai email hoặc mật khẩu!");
+
+    sessionStorage.setItem("loggedInUser", email);
+    alert("Đăng nhập thành công!");
+    window.location.href = "shop.html";
+}); 
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Đăng ký - Flora Shop</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+<script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<header class="header"><div class="logo">🌿 Flora Shop</div></header>
+
+<main class="container">
+  <form id="regForm">
+    <h2>Đăng ký</h2>
+    <input id="rname" placeholder="Họ tên" />
+    <input id="ruser" placeholder="Tên đăng nhập" required />
+    <input type="text" id="regAddress" placeholder="Nhập địa chỉ" required>
+    <input type="text" id="regEmail" placeholder="Nhập email" required>
+    <input id="rpass" type="password" placeholder="Mật khẩu" required />
+    <button class="btn" type="submit">Tạo tài khoản</button>
+    <p class="center">
+      Đã có tài khoản? <a href="login.html" class="btn ghost">Đăng nhập</a>
+    </p>
+  </form>
+</main>
+<script>
+document.getElementById("regForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("rname").value.trim();
+  const username = document.getElementById("ruser").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const password = document.getElementById("rpass").value.trim();
+  const address = document.getElementById("regAddress").value.trim();
+
+  console.log("Tên:", name);
+  console.log("Username:", username);
+  console.log("Email:", email); // <-- email lấy được ở đây
+  console.log("Password:", password);
+  console.log("Địa chỉ:", address);
+
+  // Lưu vào localStorage ví dụ
+  const users = JSON.parse(localStorage.getItem("users") || "[]");
+  users.push({ name, username, email, password, address, registerDate: new Date().toLocaleDateString() });
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Đăng ký thành công!");
+});
+</script>
+  
+</body>
+</html>

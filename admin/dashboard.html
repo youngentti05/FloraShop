@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Flora Admin - Dashboard</title>
+
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .main {
+      padding: 40px;
+      background: #f4f6f2;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+    .main h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      color: #1b5e20;
+      font-weight: 700;
+    }
+
+    /* Cards thống kê */
+    .cards {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card.stat {
+      width: 280px;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      text-align: center;
+      border-left: 6px solid #1b5e20;
+      position: relative;
+    }
+
+    .card-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 40px;
+      opacity: 0.17;
+      color: #1b5e20;
+    }
+
+    /* Tổng doanh thu + Top SP */
+    .summary-row {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      width: 380px;
+      text-align: center;
+    }
+
+    /* Top sản phẩm */
+    .top-products {
+      width: 380px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    .top-products h3 {
+      text-align: center;
+      color: #1b5e20;
+      margin-bottom: 15px;
+    }
+
+    .top-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #f9fff5;
+      border-radius: 10px;
+      border-left: 5px solid #4caf50;
+    }
+
+    .top-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 12px;
+    }
+
+    .top-item p {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .qty {
+      margin-left: auto;
+      font-weight: 700;
+      color: #1b5e20;
+    }
+
+    /* Charts */
+    .charts {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .chart-card {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      width: 420px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    /* Biểu đồ tròn thu nhỏ */
+    #statusChart {
+      max-width: 260px !important;
+      max-height: 260px !important;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+  <h2><a href="../index.html" class="home-link">🌿 Flora Admin</a></h2>
+  <ul>
+    <li><a href="dashboard.html" class="active">Tổng quan</a></li>
+    <li><a href="manage_products.html">Sản phẩm</a></li>
+    <li><a href="manage_users.html">Người dùng</a></li>
+    <li><a href="manage_orders.html">Đơn hàng</a></li>
+    <li><a href="#" onclick="logout()">Đăng xuất</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1>📊 Tổng quan hệ thống</h1>
+
+  <div class="cards">
+    <div class="card stat">
+      <div class="card-icon">👤</div>
+      <h3>Người dùng</h3>
+      <p id="m_users">0</p>
+    </div>
+
+    <div class="card stat">
+      <div class="card-icon">🌸</div>
+      <h3>Sản phẩm</h3>
+      <p id="m_products">0</p>
+    </div>
+
+    <div class="card stat">
+      <div class="card-icon">🛒</div>
+      <h3>Đơn hàng</h3>
+      <p id="m_orders">0</p>
+    </div>
+  </div>
+
+  <!-- ===== Tổng doanh thu + Top 5 sản phẩm ===== -->
+  <div class="summary-row">
+
+    <div class="stat-box">
+      <h3>Tổng doanh thu</h3>
+      <p id="tRevenue">0đ</p>
+
+      <h3>Đơn hàng thành công</h3>
+      <p id="tOrders">0 đơn</p>
+    </div>
+
+    <div class="top-products">
+      <h3>🏆 Top 5 sản phẩm bán chạy</h3>
+      <div id="topList"></div>
+    </div>
+
+  </div>
+
+  <!-- ===== Biểu đồ ===== -->
+  <div class="charts">
+
+    <div class="chart-card">
+      <h3>📈 Doanh thu theo tháng</h3>
+      <canvas id="revenueChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>🛍️ Đơn hàng theo trạng thái</h3>
+      <canvas id="statusChart"></canvas>
+    </div>
+
+  </div>
+
+</main>
+
+<script defer src="assets/js/admin.js"></script>
+
+<script>
+/* ================================
+   LOADING SỐ LIỆU CƠ BẢN
+================================ */
+document.getElementById('m_users').textContent =
+  JSON.parse(localStorage.getItem('users') || '[]').length;
+
+document.getElementById('m_products').textContent =
+  JSON.parse(localStorage.getItem('products') || '[]').length;
+
+const orders = JSON.parse(localStorage.getItem("history") || "[]");
+document.getElementById('m_orders').textContent = orders.length;
+
+
+/* ================================
+   TOP 5 SẢN PHẨM BÁN CHẠY
+================================ */
+const productMap = {};
+
+orders.forEach(o => {
+  o.items.forEach(item => {
+    if (!productMap[item.id]) {
+      productMap[item.id] = {
+        id: item.id,
+        name: item.name,
+        qty: 0
+      };
+    }
+    productMap[item.id].qty += item.qty;
+  });
+});
+
+const top5 = Object.values(productMap)
+  .sort((a, b) => b.qty - a.qty)
+  .slice(0, 5);
+
+const topList = document.getElementById("topList");
+topList.innerHTML = top5.length
+  ? top5.map(p => `
+      <div class="top-item">
+        <p>${p.name}</p>
+        <span class="qty">x${p.qty}</span>
+      </div>
+    `).join("")
+  : `<p style="text-align:center; opacity:0.6;">Chưa có dữ liệu</p>`;
+
+/* ================================
+   DOANH THU + ĐƠN THÀNH CÔNG
+================================ */
+let totalRevenue = 0;
+orders.forEach(o => {
+  totalRevenue += o.items.reduce((s, it) => s + it.price * it.qty, 0);
+});
+
+document.getElementById("tRevenue").textContent = totalRevenue.toLocaleString() + "đ";
+document.getElementById("tOrders").textContent = orders.length + " đơn";
+
+
+/* ================================
+   BIỂU ĐỒ DOANH THU THEO THÁNG
+================================ */
+const revenueByMonth = {};
+
+orders.forEach(o => {
+  const date = o.date.split(",")[0];
+  const [d,m,y] = date.split("/");
+  const key = `${m}/${y}`;
+
+  const total = o.items.reduce((s, it) => s + it.price * it.qty, 0);
+  revenueByMonth[key] = (revenueByMonth[key] || 0) + total;
+});
+
+new Chart(document.getElementById("revenueChart"), {
+  type: "bar",
+  data: {
+    labels: Object.keys(revenueByMonth),
+    datasets: [{
+      label: "Doanh thu (VNĐ)",
+      data: Object.values(revenueByMonth),
+      backgroundColor: "rgba(76,175,80,0.6)",
+      borderColor: "#1b5e20",
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }},
+    scales: { y: { beginAtZero: true }}
+  }
+});
+
+
+/* ================================
+   BIỂU ĐỒ TRẠNG THÁI
+================================ */
+const statusCount = {};
+orders.forEach(o => {
+  statusCount[o.status] = (statusCount[o.status] || 0) + 1;
+});
+
+new Chart(document.getElementById("statusChart"), {
+  type: "pie",
+  data: {
+    labels: Object.keys(statusCount),
+    datasets: [{
+      data: Object.values(statusCount),
+      backgroundColor: ["#4caf50", "#ffc107", "#f44336", "#2196f3"],
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+/* ================================
+   LOGOUT
+================================ */
+function logout() {
+  localStorage.removeItem("isAdmin");
+  location.href = "admin_login.html";
+}
+</script>
+
+</body>
+</html>
