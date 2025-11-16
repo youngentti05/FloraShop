@@ -24,29 +24,5 @@
     </p>
   </form>
 </main>
-<script>
-document.getElementById("regForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById("rname").value.trim();
-  const username = document.getElementById("ruser").value.trim();
-  const email = document.getElementById("regEmail").value.trim();
-  const password = document.getElementById("rpass").value.trim();
-  const address = document.getElementById("regAddress").value.trim();
-
-  console.log("Tên:", name);
-  console.log("Username:", username);
-  console.log("Email:", email); // <-- email lấy được ở đây
-  console.log("Password:", password);
-  console.log("Địa chỉ:", address);
-
-  // Lưu vào localStorage ví dụ
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
-  users.push({ name, username, email, password, address, registerDate: new Date().toLocaleDateString() });
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("Đăng ký thành công!");
-});
-</script>
-  
 </body>
 </html>

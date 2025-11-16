@@ -30,18 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ===== 🌿 Flora Shop Auth Logic ===== */
 
-/* ---------- Seed dữ liệu admin và user demo ---------- */
-(function seedUsers() {
-  if (!localStorage.getItem("users_seed_v7")) {
-    const users = [
-      { id: "u_admin", username: "admin123", password: "123456", role: "admin", fullName: "Quản trị" },
-      { id: "u_user", username: "user123", password: "123456", role: "user", fullName: "Khách Demo" }
-    ];
-    localStorage.setItem("users", JSON.stringify(users));
-    localStorage.setItem("users_seed_v7", "ok");
-  }
-})();
-
 /* ---------- Hàm đọc / ghi user ---------- */
 function readUsers() {
   return JSON.parse(localStorage.getItem("users") || "[]");
@@ -75,26 +63,28 @@ if (loginForm) {
   });
 }
 
-/* ---------- Đăng ký ---------- */
 const regForm = document.getElementById("regForm");
 if (regForm) {
   regForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
+    // Lấy dữ liệu từ form
     const fullName = document.getElementById("rname").value.trim();
     const username = document.getElementById("ruser").value.trim();
     const password = document.getElementById("rpass").value.trim();
+    const email = document.getElementById("regEmail").value.trim();
+    const address = document.getElementById("regAddress").value.trim();
 
     // ⚠️ Kiểm tra không để trống
-    if (!fullName || !username || !password) {
+    if (!fullName || !username || !password || !email || !address) {
       alert("Vui lòng điền đầy đủ thông tin!");
       return;
     }
 
-    // ⚠️ Họ tên chỉ gồm chữ và khoảng trắng (không số, không ký tự lạ)
+    // ⚠️ Họ tên chỉ gồm chữ và khoảng trắng
     const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
     if (!nameRegex.test(fullName)) {
-      alert("Họ tên chỉ được chứa chữ cái và khoảng trắng, không có số hoặc ký tự đặc biệt!");
+      alert("Họ tên chỉ được chứa chữ cái và khoảng trắng!");
       return;
     }
 
@@ -105,20 +95,38 @@ if (regForm) {
       return;
     }
 
-    const users = readUsers();
-    if (users.some((u) => u.username === username)) {
+    // Đọc users từ localStorage
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    // ⚠️ Kiểm tra trùng username
+    if (users.some(u => u.username.trim() === username)) {
       alert("Tên đăng nhập đã tồn tại!");
       return;
     }
 
+    // Tạo id duy nhất
     const id = "u_" + Math.random().toString(36).slice(2, 9);
-    users.push({ id, username, password, role: "user", fullName });
-    saveUsers(users);
+
+    // Thêm user mới vào mảng
+    users.push({
+      id,
+      username,
+      password,
+      fullName,
+      role: "user",
+      email,
+      address,
+      registerDate: new Date().toLocaleDateString()
+    });
+
+    // Lưu lại vào localStorage
+    localStorage.setItem("users", JSON.stringify(users));
 
     alert("Đăng ký thành công! Hãy đăng nhập để tiếp tục.");
     location.href = "login.html";
   });
 }
+
 
 /* ---------- Đăng xuất ---------- */
 function logout() {
