@@ -67,14 +67,12 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        if(!currentUser){ alert("⚠️ Bạn cần đăng nhập!"); window.location.href="login.html"; return; }
-        document.getElementById('username').textContent = currentUser.username;
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-          localStorage.removeItem('currentUser'); 
-          window.location.href="login.html";
-        });
-
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if(!currentUser) {
+          alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
+          location.href = 'login.html';
+          return;
+        }
         // 🌸 Dữ liệu sản phẩm mẫu (ảnh JPG)
         const defaultProducts = [
           {id:1,name:'Hoa hồng',category:'Hoa',price:120000,desc:'Hoa hồng đẹp', img:'assets/img/id1.jpg'},

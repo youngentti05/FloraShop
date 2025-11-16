@@ -234,11 +234,14 @@ window.deleteProduct = deleteProduct;
   const orderTable = document.querySelector("#olist tbody");
   const filterStartDateInput = document.getElementById("filterStartDate");
   const filterEndDateInput = document.getElementById("filterEndDate");
+  
+  // ✨ Bổ sung input địa chỉ
+  const filterAddressInput = document.getElementById("filterAddress");
+  
   const applyFilterBtn = document.getElementById("applyOrderFilterBtn");
   const resetFilterBtn = document.getElementById("resetOrderFilterBtn");
 
   function formatDate(dateString) {
-    // Chuyển đổi YYYY-MM-DD sang DD/MM/YYYY để hiển thị
     const parts = dateString.split("-");
     if (parts.length === 3) {
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
@@ -252,7 +255,6 @@ window.deleteProduct = deleteProduct;
       orderTable.innerHTML = `<tr><td colspan="5">Chưa có đơn hàng nào</td></tr>`;
       return;
     }
-    // Giả định cấu trúc đơn hàng: id, date, total, status
     orderTable.innerHTML = currentOrders
       .map(
         (o) => `
@@ -269,35 +271,38 @@ window.deleteProduct = deleteProduct;
       .join("");
   }
 
-  function filterOrdersByDate() {
+  function filterOrdersByDateAndAddress() {
     const startDateStr = filterStartDateInput?.value;
     const endDateStr = filterEndDateInput?.value;
+    const addressStr = filterAddressInput?.value.trim().toLowerCase();
 
-    if (!startDateStr && !endDateStr) {
+    if (!startDateStr && !endDateStr && !addressStr) {
       renderOrders(orders);
       return;
     }
 
     const filtered = orders.filter(order => {
-// Chuyển đổi chuỗi ngày YYYY-MM-DD thành đối tượng Date
       const orderDate = new Date(order.date); 
       let isAfterStart = true;
       let isBeforeEnd = true;
+      let matchesAddress = true;
 
       if (startDateStr) {
         const startDate = new Date(startDateStr);
-        // Lọc >= ngày bắt đầu
         isAfterStart = orderDate >= startDate;
       }
 
       if (endDateStr) {
-        // Để bao gồm cả ngày kết thúc, so sánh với ngày bắt đầu của ngày tiếp theo
         const endDate = new Date(endDateStr);
         endDate.setDate(endDate.getDate() + 1);
         isBeforeEnd = orderDate < endDate;
       }
-      
-      return isAfterStart && isBeforeEnd;
+
+      if (addressStr) {
+        matchesAddress = order.address?.toLowerCase().includes(addressStr);
+      }
+
+      return isAfterStart && isBeforeEnd && matchesAddress;
     });
 
     renderOrders(filtered);
@@ -306,11 +311,12 @@ window.deleteProduct = deleteProduct;
   function resetOrderFilter() {
     if(filterStartDateInput) filterStartDateInput.value = "";
     if(filterEndDateInput) filterEndDateInput.value = "";
+    if(filterAddressInput) filterAddressInput.value = ""; // ✨ reset input địa chỉ
     renderOrders(orders);
   }
 
   // Event listeners cho nút Lọc
-  applyFilterBtn?.addEventListener("click", filterOrdersByDate);
+  applyFilterBtn?.addEventListener("click", filterOrdersByDateAndAddress);
   resetFilterBtn?.addEventListener("click", resetOrderFilter);
 
   // Hàm dummy để xem chi tiết (có thể mở rộng sau)
@@ -322,6 +328,7 @@ window.deleteProduct = deleteProduct;
   // Initial render nếu đang ở trang quản lý đơn hàng
   const isOrderPage = document.querySelector('h1')?.textContent.includes('Đơn hàng');
   if (isOrderPage) renderOrders();
+});
 
 
   /* ================== 🌿 Logout ================== */
@@ -380,4 +387,3 @@ window.deleteProduct = deleteProduct;
     const orderTableExists = document.querySelector("#olist tbody");
     if (orderTableExists) renderOrders(); 
   }
-});

@@ -40,23 +40,26 @@
     
     <label for="endDate">Đến ngày:</label>
     <input type="date" id="endDate" name="endDate">
+
+    <label for="addressSearch">Địa chỉ:</label>
+    <input type="text" id="addressSearch" placeholder="Nhập địa chỉ">
     
     <button class="btn-main" onclick="filterOrders()">Lọc Đơn Hàng</button>
     <button class="btn-secondary" onclick="resetFilter()">Đặt lại</button>
   </div>
-    <table id="orderTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Người đặt</th>
-        <th>Ngày</th>
-        <th>Tổng tiền</th>
-        <th>Trạng thái</th>
-        <th>Hành động</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+   <table id="orderTable">
+  <thead>
+   <tr>
+    <th>ID</th>
+    <th>Người đặt</th>
+    <th>Ngày</th>
+    <th>Tổng tiền</th>
+    <th>Trạng thái</th>
+    <th>Hành động</th>
+   </tr>
+  </thead>
+  <tbody></tbody>
+ </table>
 </main>
 
 <script src="assets/js/admin.js"></script>
@@ -124,51 +127,40 @@ function render(orderList = displayedOrders) {
 function filterOrders() {
     const startDateValue = document.getElementById('startDate').value;
     const endDateValue = document.getElementById('endDate').value;
-
-    if (!startDateValue && !endDateValue) {
-        // Nếu không có ngày nào được chọn, hiển thị tất cả
+    const addressValue = document.getElementById('addressSearch').value.trim().toLowerCase();
+if (!startDateValue && !endDateValue && !addressValue) {
         render(allOrders);
         return;
     }
 
-    // Chuyển đổi ngày tháng nhập vào thành đối tượng Date
-    // LƯU Ý: Trường 'date' trong đơn hàng phải là chuỗi 'YYYY-MM-DD' để hoạt động đúng.
     const startDate = startDateValue ? new Date(startDateValue) : null;
     let endDate = endDateValue ? new Date(endDateValue) : null;
 
-    // Điều chỉnh ngày kết thúc để bao gồm cả ngày đó (thêm 1 ngày và trừ 1ms)
     if (endDate) {
         endDate.setDate(endDate.getDate() + 1);
         endDate.setMilliseconds(endDate.getMilliseconds() - 1);
     }
 
     const filtered = allOrders.filter(order => {
-        // Chuyển đổi ngày đơn hàng thành đối tượng Date (lấy từ trường 'date' của đơn hàng)
         const orderDate = new Date(order.date); 
-
         let matchesStart = true;
         let matchesEnd = true;
+        let matchesAddress = true;
 
-        if (startDate) {
-            matchesStart = orderDate >= startDate;
-        }
+        if (startDate) matchesStart = orderDate >= startDate;
+        if (endDate) matchesEnd = orderDate <= endDate;
+        if (addressValue) matchesAddress = order.address.toLowerCase().includes(addressValue);
 
-        if (endDate) {
-            matchesEnd = orderDate <= endDate;
-        }
-
-        return matchesStart && matchesEnd;
+        return matchesStart && matchesEnd && matchesAddress;
     });
 
     render(filtered);
 }
 
-/**
- * Hàm đặt lại bộ lọc và hiển thị tất cả đơn hàng
- */
 function resetFilter() {
     document.getElementById('startDate').value = '';
     document.getElementById('endDate').value = '';
+    document.getElementById('addressSearch').value = '';
     render(allOrders);
 }
 
